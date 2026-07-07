@@ -46,12 +46,8 @@ public class ExtraCodecsMixin
 
     private static boolean isBuildingItemStackCodec()
     {
-        for (StackTraceElement frame : Thread.currentThread().getStackTrace())
-        {
-            if ("net.minecraft.world.item.ItemStack".equals(frame.getClassName()))
-                return true;
-        }
-
-        return false;
+        return StackWalker.getInstance().walk(frames ->
+                frames.limit(5).anyMatch(frame ->
+                        "net.minecraft.world.item.ItemStack".equals(frame.getClassName())));
     }
 }

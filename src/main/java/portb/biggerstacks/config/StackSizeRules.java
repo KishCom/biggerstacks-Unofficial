@@ -11,6 +11,7 @@ import portb.configlib.ItemProperties;
 import portb.configlib.TagAccessor;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import portb.biggerstacks.BiggerStacks;
+import portb.biggerstacks.util.ItemStackSizeHelper;
 import portb.configlib.xml.RuleSet;
 
 public class StackSizeRules
@@ -40,7 +41,8 @@ public class StackSizeRules
     public static void setRuleSet(RuleSet ruleSet)
     {
         StackSizeRules.ruleSet = ruleSet;
-        
+        ItemStackSizeHelper.invalidateCache();
+
         if (ruleSet != null)
             BiggerStacks.LOGGER.info("Loaded BiggerStacks ruleset. Max declared stack size: {}", ruleSet.getMaxStacksize());
         else
@@ -116,7 +118,6 @@ public class StackSizeRules
         return new ItemProperties(
                 namespace,
                 identifier,
-                "",
                 stackSize,
                 edible,
                 placeable,

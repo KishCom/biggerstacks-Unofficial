@@ -18,6 +18,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import portb.biggerstacks.BiggerStacks;
 import portb.biggerstacks.Constants;
+import portb.biggerstacks.util.ItemStackSizeHelper;
 import portb.configlib.template.TemplateOptions;
 import portb.configlib.xml.Condition;
 import portb.configlib.xml.Operator;
@@ -153,6 +154,7 @@ public final class TemplateOverrideConfig
     {
         ITEM_OVERRIDES.clear();
         TAG_OVERRIDES.clear();
+        ItemStackSizeHelper.invalidateCache();
 
         for (StackOverride entry : overridesCache)
         {
