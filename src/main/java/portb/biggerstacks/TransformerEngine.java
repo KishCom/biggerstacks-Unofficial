@@ -33,6 +33,8 @@ public class TransformerEngine implements IMixinConfigPlugin
     private static final Map<String, List<String>> MODS_THAT_CONFLICT_WITH_PATCHES = Map.of(
             "portb.biggerstacks.mixin.vanilla.AnvilMenuMixin", List.of("tiered")
     );
+    private static final String                    COMPACTING_UPGRADE_WRAPPER_MIXIN =
+            "portb.biggerstacks.mixin.compat.sophisticatedcore.CompactingUpgradeWrapperMixin";
     private static final Logger                    LOGGER                          = LoggerFactory.getLogger(
             TransformerEngine.class);
     private static final Pattern                   MOD_ID_PACKAGE_TARGET_PATTERN   = Pattern.compile(
@@ -104,8 +106,21 @@ public class TransformerEngine implements IMixinConfigPlugin
             if (FMLLoader.getLoadingModList().getModFileById(modId) != null)
                 return true;
         }
-        
+
         return false;
+    }
+
+    private static boolean hasNewCompactingApi(String modId)
+    {
+        var modFile = FMLLoader.getLoadingModList().getModFileById(modId);
+
+        if (modFile == null || modFile.getMods().isEmpty())
+            return false;
+
+        var version = modFile.getMods().get(0).getVersion();
+
+        //CompactingUpgradeWrapper.tryCompacting changed signature in sophisticatedcore 1.4.0
+        return version.getMajorVersion() > 1 || version.getMinorVersion() >= 4;
     }
     
     @Override
@@ -128,12 +143,20 @@ public class TransformerEngine implements IMixinConfigPlugin
         {
             String  modId       = matcher.group(1);
             boolean isModLoaded = FMLLoader.getLoadingModList().getModFileById(modId) != null;
-            
+
             if (isModLoaded)
                 LOGGER.info(modId + " is installed, applying patches");
             else
                 LOGGER.debug(modId + " is NOT installed");
-            
+
+            //the compacting patch targets the API of sophisticatedcore 1.4.x and newer; skip it on older
+            //versions instead of crashing the game (vanilla compacting behaviour will be used)
+            if (isModLoaded && COMPACTING_UPGRADE_WRAPPER_MIXIN.equals(mixinClassName) && !hasNewCompactingApi(modId))
+            {
+                LOGGER.warn(modId + " version is too old for the compacting upgrade patch, skipping it");
+                return false;
+            }
+
             return isModLoaded;
         }
         else

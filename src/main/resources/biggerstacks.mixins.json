@@ -9,6 +9,7 @@
     "compat.sophisticatedcore.InventoryHandlerMixin",
     "compat.sophisticatedcore.CompactingUpgradeWrapperMixin",
     "compat.sophisticatedcore.StackUpgradeItemMixin",
+    "compat.sophisticatedcore.UpgradeWrapperBaseAccessor",
     "vanilla.ContainersMixin",
     "vanilla.ExtraCodecsMixin",
     "vanilla.DataComponentsMixin",
