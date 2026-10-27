@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Clone composite-build libraries
+        run: |
+          git clone https://codeberg.org/PORTB/SimpleLoggerWrapper.git ../SimpleLoggerWrapper
+          git -C ../SimpleLoggerWrapper checkout 89288e2e1047b7d50bf0a4fc263c6ed2d5e66fc1
+          git clone https://codeberg.org/PORTB/BiggerStacksConfigLib.git ../BiggerStacksConfigLib
+          git -C ../BiggerStacksConfigLib checkout 6f7685c24565751c3890cb6a96854eda5174e5a8
+          git clone https://codeberg.org/PORTB/BiggerStacksTransformerLib.git ../BiggerStacksTransformerLib
+          git -C ../BiggerStacksTransformerLib checkout be3c580b063a150a495f65be576482fd2fcffd87
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build jar
+        run: ./gradlew build
+
+      - name: Upload jar artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: biggerstacks-unofficial-jar
+          path: build/libs/biggerstacks-unofficial-*.jar
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: BiggerStacks Unofficial ${{ github.ref_name }}
+          files: build/libs/biggerstacks-unofficial-*.jar
+          generate_release_notes: true
