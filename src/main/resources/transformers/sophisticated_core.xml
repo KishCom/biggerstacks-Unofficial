@@ -20,7 +20,8 @@
     </class>
 
     <class path="net.p3pp3rf1y.sophisticatedcore.upgrades.cooking.CookingLogic" transformChildren="false">
-        <method name="canSmelt" transformer="replace64"/>
+        <!-- desc is required: 1.5.x added a canSmelt(Recipe, Level) overload which made the name-only match ambiguous -->
+        <method name="canSmelt" transformer="replace64" desc="(Lnet/minecraft/world/item/ItemStack;)Z"/>
     </class>
 
     <class path="net.p3pp3rf1y.sophisticatedcore.upgrades.stack.StackUpgradeItem" transformChildren="false">
